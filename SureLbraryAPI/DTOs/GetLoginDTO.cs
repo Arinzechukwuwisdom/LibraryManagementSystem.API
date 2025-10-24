@@ -2,7 +2,7 @@
 {
     public class ResponseLoginDTO
     {
-        public int Id { get; set; } 
-        public string  Token {  get; set; }
+        public string RefreshToken { get; set; } 
+        public string  AccessToken {  get; set; }
     }
 }

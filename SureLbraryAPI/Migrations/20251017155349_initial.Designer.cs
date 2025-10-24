@@ -12,15 +12,15 @@ using SureLbraryAPI.Context;
 namespace SureLbraryAPI.Migrations
 {
     [DbContext(typeof(LibraryContext))]
-    [Migration("20250829154451_initial migration")]
-    partial class initialmigration
+    [Migration("20251017155349_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.18")
+                .HasAnnotation("ProductVersion", "8.0.20")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -42,13 +42,17 @@ namespace SureLbraryAPI.Migrations
 
                     b.Property<string>("Genre")
                         .IsRequired()
-                        .HasColumnType("Nvarchar(30)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("PublishedDate")
-                        .HasColumnType("datetime2");
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<string>("PublishedDate")
+                        .IsRequired()
+                        .HasColumnType("Nvarchar(30)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -56,9 +60,6 @@ namespace SureLbraryAPI.Migrations
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("Nvarchar(30)");
-
-                    b.Property<decimal>("price")
-                        .HasColumnType("decimal(18, 2)");
 
                     b.HasKey("Id");
 
@@ -135,12 +136,31 @@ namespace SureLbraryAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Address = "",
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 10, 17, 15, 53, 48, 942, DateTimeKind.Unspecified).AddTicks(95), new TimeSpan(0, 0, 0, 0, 0)),
+                            Email = "WisdomSure5@gmail.com",
+                            MembershipNumber = 1,
+                            MembershipPrefix = "MEM-",
+                            Name = "Admin",
+                            Password = "Trigger1919",
+                            Role = "",
+                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 10, 17, 15, 53, 48, 942, DateTimeKind.Unspecified).AddTicks(96), new TimeSpan(0, 0, 0, 0, 0))
+                        });
                 });
 
             modelBuilder.Entity("SureLbraryAPI.Models.Transaction", b =>

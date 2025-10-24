@@ -12,15 +12,15 @@ using SureLbraryAPI.Context;
 namespace SureLbraryAPI.Migrations
 {
     [DbContext(typeof(LibraryContext))]
-    [Migration("20250901153025_initial")]
-    partial class initial
+    [Migration("20251021164041_AddReshTokens")]
+    partial class AddReshTokens
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.18")
+                .HasAnnotation("ProductVersion", "8.0.20")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -42,13 +42,17 @@ namespace SureLbraryAPI.Migrations
 
                     b.Property<string>("Genre")
                         .IsRequired()
-                        .HasColumnType("Nvarchar(30)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("PublishedDate")
-                        .HasColumnType("datetime2");
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<string>("PublishedDate")
+                        .IsRequired()
+                        .HasColumnType("Nvarchar(30)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -56,9 +60,6 @@ namespace SureLbraryAPI.Migrations
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("Nvarchar(30)");
-
-                    b.Property<decimal>("price")
-                        .HasColumnType("decimal(18, 2)");
 
                     b.HasKey("Id");
 
@@ -135,6 +136,16 @@ namespace SureLbraryAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("RefreshTokenExpiryTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("datetimeoffset");
 
@@ -147,13 +158,15 @@ namespace SureLbraryAPI.Migrations
                         {
                             Id = 1,
                             Address = "",
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 9, 1, 15, 30, 24, 598, DateTimeKind.Unspecified).AddTicks(3068), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2025, 10, 21, 16, 40, 40, 600, DateTimeKind.Unspecified).AddTicks(5262), new TimeSpan(0, 0, 0, 0, 0)),
                             Email = "WisdomSure5@gmail.com",
                             MembershipNumber = 1,
                             MembershipPrefix = "MEM-",
-                            Name = "Admin",
+                            Name = "Arinzechukwu",
                             Password = "Trigger1919",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 9, 1, 15, 30, 24, 598, DateTimeKind.Unspecified).AddTicks(3073), new TimeSpan(0, 0, 0, 0, 0))
+                            RefreshTokenExpiryTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Role = "Admin",
+                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 10, 21, 16, 40, 40, 600, DateTimeKind.Unspecified).AddTicks(5266), new TimeSpan(0, 0, 0, 0, 0))
                         });
                 });
 

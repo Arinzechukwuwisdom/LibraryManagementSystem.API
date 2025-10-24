@@ -6,10 +6,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SureLbraryAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class initialmigration : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder) 
+        protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
                 name: "Books",
@@ -19,9 +19,9 @@ namespace SureLbraryAPI.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(type: "Nvarchar(30)", nullable: false),
                     Author = table.Column<string>(type: "Nvarchar(30)", nullable: false),
-                    PublishedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Genre = table.Column<string>(type: "Nvarchar(30)", nullable: false),
-                    price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PublishedDate = table.Column<string>(type: "Nvarchar(30)", nullable: false),
+                    Genre = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     IsAvailable = table.Column<bool>(type: "bit", nullable: false),
                     CopiesAvailable = table.Column<int>(type: "int", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false)
@@ -44,7 +44,8 @@ namespace SureLbraryAPI.Migrations
                     MembershipPrefix = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UpdatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    Role = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -78,6 +79,11 @@ namespace SureLbraryAPI.Migrations
                         principalTable: "Users",
                         principalColumn: "Id");
                 });
+
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "Id", "Address", "CreatedAt", "Email", "MembershipNumber", "MembershipPrefix", "Name", "Password", "Role", "UpdatedAt" },
+                values: new object[] { 1, "", new DateTimeOffset(new DateTime(2025, 10, 17, 15, 53, 48, 942, DateTimeKind.Unspecified).AddTicks(95), new TimeSpan(0, 0, 0, 0, 0)), "WisdomSure5@gmail.com", 1, "MEM-", "Admin", "Trigger1919", "", new DateTimeOffset(new DateTime(2025, 10, 17, 15, 53, 48, 942, DateTimeKind.Unspecified).AddTicks(96), new TimeSpan(0, 0, 0, 0, 0)) });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Transactions_BookId",

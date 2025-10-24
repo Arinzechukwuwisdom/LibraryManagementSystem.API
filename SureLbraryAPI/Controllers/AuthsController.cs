@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SureLbraryAPI.DTOs;
 using SureLbraryAPI.Interfaces;
@@ -33,24 +34,38 @@ namespace SureLbraryAPI.Controllers
             
         }
         [HttpPost("login")]
-        public async Task<IActionResult> LoginUserAsync([FromBody]LoginUserDTO request)
+        public async Task<ActionResult<ResponseLoginDTO>> LoginUserAsync([FromBody] LoginUserDTO request)
         {
             try
             {
-                var req= await _authService.LoginUserAsync(request);
-                if (req.IsSuccess) 
+                var req = await _authService.LoginUserAsync(request);
+                if (req.IsSuccess)
                 {
                     return Ok(req);
                 }
-                else 
+                else
                 {
                     return BadRequest(req);
                 }
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError,ex.Message);   
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
+
+        }
+
+        [Authorize]
+        [HttpGet]
+        public IActionResult AuthenticateOnlyEndpoint()
+        {
+            return Ok("You are Authenticated!");
+        }
+        [Authorize(Roles="Admin")]
+        [HttpGet("Admin-only")]
+        public IActionResult AdminOnlyEndpoint()
+        {
+            return Ok("You are an Admin!");
         }
     }
 }

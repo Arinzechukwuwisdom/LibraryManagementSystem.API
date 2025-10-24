@@ -10,6 +10,7 @@ using SureLbraryAPI.Models;
 using SureLbraryAPI.Utilities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using User = SureLbraryAPI.Models.User;
 
@@ -32,10 +33,12 @@ namespace SureLbraryAPI.Repository
                     return ResponseDetails<ResponseLoginDTO>.Failed("Credentails are Invalid", "Incorrect Details",400);
                 }
                 string token = CreateToken(user);
+
                 var response = new ResponseLoginDTO
                 {
-                    Id =user.Id,
-                    Token=token
+                    //Id =user.Id,
+                    AccessToken = CreateToken(user),
+                    RefreshToken =await GenerateAndSaveRefreshTokenAsync(user)
                 };
                
                 {
@@ -61,7 +64,8 @@ namespace SureLbraryAPI.Repository
                 {
                     Name = request.Name,
                     Email = request.Email,
-                    Password = BCrypt.Net.BCrypt.HashPassword(request.Password)
+                    Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                    Role=request.Role,
                     //Password = new PasswordHasher<User>()
                     //.HashPassword(user, request.Password)
                 };
@@ -81,24 +85,42 @@ namespace SureLbraryAPI.Repository
                 return ResponseDetails<GetUserDTO>.Failed("An Exception was caught",ex.Message,ex.HResult);
             }
         }
+        private string GenerateRefreshToken()
+        {
+            var randomNumber=new byte[32];
+            using var rng= RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+            return Convert.ToBase64String(randomNumber);
+        }
+
+        private async Task<string> GenerateAndSaveRefreshTokenAsync(User user)
+        {
+            var refreshToken=GenerateRefreshToken();
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+            await _context.SaveChangesAsync();
+            return refreshToken;
+        }
         private string CreateToken(User user)
         {
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Role, "Admin")
+                new Claim(ClaimTypes.Role, user.Role)
             };
+
             var key = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(configuration.GetValue<string>("AppSettings:SigningKey")!));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
 
             var tokenDescriptor = new JwtSecurityToken(
-                issuer: configuration.GetValue<string>("AppSettings:Issuer"),
-                audience: configuration.GetValue<string>("AppSettings:Audience"),
+                issuer: configuration["AppSettings:Issuer"],
+                audience: configuration["AppSettings:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddDays(1),
+                expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(configuration["AppSettings:ExpirationTime"])),
+                //expires: DateTime.UtcNow.AddMinutes(30),
                 signingCredentials: creds
                 );
             return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);

@@ -31,7 +31,7 @@ namespace SureLbraryAPI.Context
             //.HasDefaultValue("Borrowed");
 
             modelBuilder.Entity<User>()
-                .HasData(new User { Email = "WisdomSure5@gmail.com", Name = "Admin", Password = "Trigger1919" , MembershipNumber=1,Id=1});
+                .HasData(new User { Email = "WisdomSure5@gmail.com", Name = "Arinzechukwu", Password = "Trigger1919" , MembershipNumber=1,Id=1,Role="Admin"});
         }
     }
 }

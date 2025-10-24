@@ -36,6 +36,7 @@ namespace SureLbraryAPI.Repository
                     Address = userDetail.Address,
                     Password=BCrypt.Net.BCrypt.HashPassword(userDetail.Password),
                     MembershipNumber = lastestMembershipNumber + 1,
+                    Role=userDetail.Role
                 };  
                 await _context.Users.AddAsync(user);
                 await _context.SaveChangesAsync();

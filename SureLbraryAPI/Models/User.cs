@@ -17,7 +17,11 @@ namespace SureLbraryAPI.Models
         public string Address { get; set; } = string.Empty;
         public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
         public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
-        //public string Role { get; set; }
+        public required string Role { get; set; }= string.Empty;
+        //public List<string> Roles { get; set; }
+        public string? RefreshToken { get; set; }
+        public DateTime RefreshTokenExpiryTime { get; set; }
+
         List<Transaction> transactions = new List<Transaction>();
     }
 }
