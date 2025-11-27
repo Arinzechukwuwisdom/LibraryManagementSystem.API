@@ -1,13 +1,12 @@
 LibraryManagementAPI 
 
-A simple, maintainable library management API built with N-Layered Architecture in ASP.NET Core — prioritizing separation of concerns, testability, and real-world workflows.
+A simple, maintainable library management API that manages books, users, and transactions (borrowing and returning books).built with N-Layered Architecture in ASP.NET Core — prioritizing separation of concerns, testability, and real-world workflows.
 Features 
 
      User & Book Management (CRUD)  
      Transaction Lifecycle: Borrowing, returning, due date tracking  
      Validation: Ensures users/books exist before transactions  
      Secure Authentication: JWT-based login (with BCrypt hashing)  
-     Clean Architecture: Separation of Domain, Application, Infrastructure, and Presentation layers  
      Resilient Design: Proper exception handling, logging, and async/await  
      
 
@@ -29,10 +28,9 @@ API Docs
 Swagger/OpenAPI
 Testing
 	
-Postman Collection (included), xUnit (planned)
 Tools
 	
-Git, Trello (project tracking)
+Git (project tracking)
  
  
  
@@ -41,9 +39,7 @@ Prerequisites
 
     .NET 8 SDK 
     SQL Server (LocalDB, Express, or Docker)
-    (Optional) Azure Data Studio  or SSMS
-     
-
+>
 Setup 
 
     Clone the repo: 
@@ -93,7 +89,6 @@ bash
 
     Explore the API: 
         Swagger UI: https://localhost:5001/swagger
-        Use the included Postman Collection (/postman/LibraryManagementAPI.postman_collection.json) for quick testing.
          
      
 
