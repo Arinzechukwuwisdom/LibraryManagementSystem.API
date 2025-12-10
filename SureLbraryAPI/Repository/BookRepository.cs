@@ -175,23 +175,6 @@ namespace SureLbraryAPI.Repository
             }
         }
 
-        //public async Task<ResponseDetails<GetBookDTO>> GetBookByNameAsync(string name)
-        //{
-        //    try
-        //    {
-        //        var book=await _context.Books.FindAsync(name);
-        //        //if (string.IsNullOrEmpty(name))
-        //        if(book==null)
-        //        {
-        //            ResponseDetails<GetBookDTO>.Failed("Exception was Caught",$"Book ");
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return ResponseDetails<GetBookDTO>.Failed("Exception was Caught", ex.Message,ex.HResult);
-        //    }
-        //}
-
         public async Task<ResponseDetails<IEnumerable<GetBookDTO>>> GetBookBySpecificFilterAsync(string filter)
         {
             try
@@ -255,17 +238,5 @@ namespace SureLbraryAPI.Repository
                 return ResponseDetails<IEnumerable<GetBookDTO>>.Failed("Exception was Caught", ex.Message,ex.HResult);
             }
         }
-
-    //    public async Task<ResponseDetails<IEnumerable<GetBookDTO>>> UpdateBookAsync(CreateBookDTO bookDetails, int id)
-    //    {
-    //        try
-    //        {
-    //            var 
-    //        }
-    //        catch (Exception ex) 
-    //        {
-            
-    //        }
-    //    }
     }
 }
