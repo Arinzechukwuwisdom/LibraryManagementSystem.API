@@ -59,7 +59,6 @@ namespace SureLbraryAPI.Repository
             }
         }
 
-        // This is delete
         public async Task<bool> DeleteUserAsync(int id)
         {
             try
@@ -131,40 +130,6 @@ namespace SureLbraryAPI.Repository
             }
         }
 
-        
 
-        //public async Task<ResponseDetails<GetUserDTO>> UpdateUsersAsync(CreateUserDTO userDetail, int id)
-        //{
-        //    try
-        //    {
-        //        var user = await _context.Users.FindAsync(id);
-        //        if (user is null)
-        //        {
-        //            return ResponseDetails<GetUserDTO>.Failed("Not Found", $"User with ID:{id} not found", 400);
-        //        }
-        //        var EmailExists = await _context.Users.AnyAsync(u => u.Email == userDetail.Email && u.Id != id);
-        //        if (EmailExists)
-        //        {
-        //            return ResponseDetails<GetUserDTO>.Failed("Conflict", $"User with Email{userDetail.Email} already Exists", 409);
-        //        }
-        //        user.Name = userDetail.Email ?? user.Email;
-        //        user.Address = userDetail.Address ?? user.Address;
-        //        user.Email = userDetail.Email ?? user.Email;
-        //        user.Password = userDetail.Password is not null ? BCrypt.Net.BCrypt.HashPassword(userDetail.Password) : user.Password;
-        //        user.UpdatedAt = DateTime.UtcNow;
-
-        //        var getUserDTO = new GetUserDTO
-        //        {
-                    
-        //        };
-
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return ResponseDetails<GetUserDTO>.Failed("Caught Exception", ex.Message, ex.HResult);
-
-        //    }
-        //}
     }
 }
