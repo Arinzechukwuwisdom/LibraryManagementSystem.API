@@ -32,7 +32,7 @@ namespace SureLbraryAPI.Repository
                     CopiesAvailable = bookDetail.CopiesAvailable,
                     Genre = bookDetail.Genre,
                     PublishedDate = bookDetail.PublishedDate,
-                    //Quantity = bookDetail.Quantity,
+                   //Quantity = bookDetail.Quantity,
                     Price =bookDetail.Price
                 };
                 await _context.Books.AddAsync(book);

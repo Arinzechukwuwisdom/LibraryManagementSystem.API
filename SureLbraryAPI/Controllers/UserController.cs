@@ -19,7 +19,7 @@ namespace SureLbraryAPI.Controllers
             _userService = userService;
         }
         [HttpPost]
-        public async Task<IActionResult> CreateUser(CreateUserDTO userDetail)
+        public async Task<IActionResult> CreateUserAsync(CreateUserDTO userDetail)
         {
             try
             {

@@ -11,6 +11,7 @@ namespace SureLbraryAPI.Models
         public DateTime BorrowDate { get; set; }
         public DateTime ReturnDate { get; set; }
         public DateTime? ExpectedReturnDate { get; set; }
+        public DateTime? ActualReturnDate { get; set; }
         public TransactionStatus Status { get; set; }
         [ForeignKey(nameof(User))]
         public int? UserId { get; set; }

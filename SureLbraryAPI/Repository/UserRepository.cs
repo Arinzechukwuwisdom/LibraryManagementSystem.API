@@ -40,7 +40,7 @@ namespace SureLbraryAPI.Repository
                 };  
                 await _context.Users.AddAsync(user);
                 await _context.SaveChangesAsync();
-                var userDTO = new GetUserDTO
+                var userDTO = new GetUserDTO    
                 {
                     Id = user.Id,
                     Name = user.Name,

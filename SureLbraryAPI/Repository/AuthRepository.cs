@@ -46,6 +46,7 @@ namespace SureLbraryAPI.Repository
                 }
             }
             catch (Exception ex)
+
             {
                 return ResponseDetails<ResponseLoginDTO>.Failed("User unable to Login", ex.Message, ex.HResult);
             }
@@ -116,7 +117,7 @@ namespace SureLbraryAPI.Repository
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
 
             var tokenDescriptor = new JwtSecurityToken(
-                issuer: configuration["AppSettings:Issuer"],
+                issuer: configuration["AppSettings:Issuer"], 
                 audience: configuration["AppSettings:Audience"],
                 claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(configuration["AppSettings:ExpirationTime"])),
