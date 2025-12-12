@@ -34,19 +34,6 @@ namespace LbraryManagementAPI.Controllers
                 return Ok(req);
             }
         }
-
-        // Example GET for CreatedAtAction
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetTransactionById(int id)
-        {
-            var transaction = await _transactionService.GetTransactionByIdAsync(id);
-            if (transaction == null)
-            {
-                return NotFound(new { message = "Transaction not found" });
-            }
-
-            return Ok(transaction);
-        }
     }
 
 }
