@@ -6,7 +6,7 @@ namespace SureLbraryAPI.Interfaces
     public interface ITransactionService
     {
         Task<List<GetTransactionDTO>> GetAllTransactionsAsync();
-        Task<GetTransactionDTO> GetTransactionByIdAsync (int Id);
+        Task<GetTransactionDTO?> GetTransactionByIdAsync (int id);
         Task<GetTransactionDTO> CreateTransactionAsync (int bookId,int userId,CreateTransactionDTO transactionDetails);
         Task<GetTransactionDTO> UpdateTransactionAsync (CreateTransactionDTO transaction,int id);
         Task<bool> DeleteTransactionAsync (int id);

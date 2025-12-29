@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using SureLbraryAPI.Context;
 using SureLbraryAPI.DTOs;
 using SureLbraryAPI.Enums;
@@ -49,6 +50,8 @@ namespace SureLbraryAPI.Repository
                     UserName = user.Name,
                     Status = transaction.Status,
                     ExpectedReturnDate = transaction.ExpectedReturnDate,
+                    BorrowDate = transaction.BorrowDate,
+                    BookTitle=transaction.Book.Title,
                 };
                 return transactionDt0 ;
             }
@@ -88,7 +91,7 @@ namespace SureLbraryAPI.Repository
                     {
                         Console.WriteLine("No transaction Found");
                     }
-                        return transactions; 
+                    return transactions; 
             }
             catch (Exception ex)
             {
@@ -106,13 +109,13 @@ namespace SureLbraryAPI.Repository
                     .Where(t => t.UserId == userId
                              && t.ActualReturnDate == null
                              && t.ExpectedReturnDate < now
-                             && t.Status == TransactionStatus.Borrowed) // or t.Status != "Returned"
-                    .OrderBy(t => t.ExpectedReturnDate) // earliest overdue first
+                             && t.Status == TransactionStatus.Borrowed)
+                    .OrderBy(t => t.ExpectedReturnDate) 
                     .Select(t => new GetTransactionDTO
                     {
                         Id = t.Id,
-                        UserName = t.User.Name,          // ← navigation property
-                        BookTitle = t.Book.Title,        // ← navigation property
+                        UserName = t.User.Name,          
+                        BookTitle = t.Book.Title,        
                         BorrowDate = t.BorrowDate,
                         ExpectedReturnDate = t.ExpectedReturnDate.Value,
                         DaysOverdue = (int)(now - t.ExpectedReturnDate.Value).TotalDays,
@@ -156,10 +159,29 @@ namespace SureLbraryAPI.Repository
             }
         }
 
-        public Task<GetTransactionDTO> GetTransactionByIdAsync(int Id)
+        public async Task<GetTransactionDTO?> GetTransactionByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            var transaction = await _libraryContext.Transactions
+                .Include(t => t.User)
+                .Include(t => t.Book)
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (transaction == null)
+            {
+                return null;
+            }
+
+            return new GetTransactionDTO
+            {
+                Id = transaction.Id,
+                UserName = transaction.User.Name,
+                BookTitle = transaction.Book.Title,
+                Status = transaction.Status,
+                BorrowDate = transaction.BorrowDate,
+                ExpectedReturnDate = transaction.ExpectedReturnDate
+            };
         }
+
 
         public Task<IEnumerable<GetTransactionDTO>> GetTransactionByStatusAsync(int status)
         {

@@ -22,7 +22,7 @@ namespace SureLbraryAPI.Repository
                 var bookExists = await _context.Books.AnyAsync(u => u.Title == bookDetail.Title && u.Author == bookDetail.Author);
                 if (bookExists)
                 {
-                    return ResponseDetails<GetBookDTO>.Failed("Exception was caught", "$Book with the same {Title} and {Author} already Exist", 400);
+                    return ResponseDetails<GetBookDTO>.Failed("Validation Failed", "Book with the same Title and Author already Exist", 409);
                 }
                 
                 var book = new Book
@@ -50,12 +50,10 @@ namespace SureLbraryAPI.Repository
                     CopiesAvailable = book.CopiesAvailable,
                 };
                 return ResponseDetails<GetBookDTO>.Success(dto,"Book Added Successfully", 200);
-                
-
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
-                return ResponseDetails<GetBookDTO>.Failed("Caught Exception", ex.Message,ex.HResult);
+                return ResponseDetails<GetBookDTO>.Failed("Caught Exception", ex.Message, ex.HResult);
             }
         }
 
@@ -76,8 +74,6 @@ namespace SureLbraryAPI.Repository
                     Title = book.Title,
                     Author = book.Author,
                     PublishedDate = book.PublishedDate,
-
-
                 };
                 return ResponseDetails<GetBookDTO>.Success(bookDTO,"Book Deleted Successfully",200);
             }

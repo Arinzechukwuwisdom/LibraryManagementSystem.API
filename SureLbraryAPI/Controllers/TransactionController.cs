@@ -34,6 +34,17 @@ namespace LbraryManagementAPI.Controllers
                 return Ok(req);
             }
         }
+        [HttpGet]
+        public async Task<IActionResult> GetTransactionByIdAsync (int id)
+        {
+            var transaction=await _transactionService.GetTransactionByIdAsync(id);
+            if (transaction == null)
+            {
+               // return BadRequest();
+                return NotFound("Transaction Not Found");
+            }
+            return Ok(transaction);
+        }
     }
 
 }
