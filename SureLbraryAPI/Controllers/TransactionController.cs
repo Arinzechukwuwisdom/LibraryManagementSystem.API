@@ -17,33 +17,57 @@ namespace LbraryManagementAPI.Controllers
         {
             _transactionService = transactionService;
         }
-        [HttpPost]
 
+        [HttpPost]
         public async Task<IActionResult> CreateTransactionAsync(
         int bookId,
         int userId,
         [FromBody] CreateTransactionDTO transactionDetails)
         {
-            var req=await _transactionService.CreateTransactionAsync(bookId, userId, transactionDetails);
-            if (req == null)
+            var req = await _transactionService.CreateTransactionAsync(bookId, userId, transactionDetails);
+            if (req.IsSuccess)
             {
-                return BadRequest(req);
+                return Ok(req);
+                //return BadRequest(req);
             }
             else
             {
-                return Ok(req);
+                return NotFound(req);
             }
         }
-        [HttpGet]
-        public async Task<IActionResult> GetTransactionByIdAsync (int id)
+
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllTransactionsAsync()
         {
-            var transaction=await _transactionService.GetTransactionByIdAsync(id);
-            if (transaction == null)
+            var req = await _transactionService.GetAllTransactionsAsync();
+            if (req.IsSuccess)
             {
-               // return BadRequest();
-                return NotFound("Transaction Not Found");
+                return Ok(req);
             }
-            return Ok(transaction);
+            return NotFound(req);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetTransactionByIdAsync(int id)
+        {
+            var transaction = await _transactionService.GetTransactionByIdAsync(id);
+            if (transaction.IsSuccess)
+            {
+                // return BadRequest();
+                return Ok(transaction);
+            }
+            return NotFound(transaction);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteTransactionAsync(int id) 
+        {
+            var transaction= await _transactionService.DeleteTransactionAsync(id);
+            if(transaction.IsSuccess)
+            {
+                return Ok(transaction);
+            }
+            return NotFound(transaction);
         }
     }
 

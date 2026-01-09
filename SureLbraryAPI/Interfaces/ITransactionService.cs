@@ -1,18 +1,20 @@
 ﻿using SureLbraryAPI.DTOs;
-using System.Transactions;
+using SureLbraryAPI.Enums;
+using SureLbraryAPI.Utilities;
+
 
 namespace SureLbraryAPI.Interfaces
 {
     public interface ITransactionService
     {
-        Task<List<GetTransactionDTO>> GetAllTransactionsAsync();
-        Task<GetTransactionDTO?> GetTransactionByIdAsync (int id);
-        Task<GetTransactionDTO> CreateTransactionAsync (int bookId,int userId,CreateTransactionDTO transactionDetails);
-        Task<GetTransactionDTO> UpdateTransactionAsync (CreateTransactionDTO transaction,int id);
-        Task<bool> DeleteTransactionAsync (int id);
-        Task<IEnumerable<GetTransactionDTO>> GetTransactionByUserIdAsync (int id);
-        Task<IEnumerable<GetTransactionDTO>> GetTransactionByBookIdAsync(int  bookId);
-        Task<IEnumerable<GetTransactionDTO>> GetOverdueTransactionAsync(int id);
-        Task<IEnumerable<GetTransactionDTO>> GetTransactionByStatusAsync (int status);
+        Task<ResponseDetails<List<GetTransactionDTO>>> GetAllTransactionsAsync();
+        Task<ResponseDetails<GetTransactionDTO>> UpdateTransactionAsync (CreateTransactionDTO transactionDetails,int id);
+        Task<ResponseDetails<bool>> DeleteTransactionAsync (int id);
+        Task<ResponseDetails<IEnumerable<GetTransactionDTO>>>GetTransactionByUserIdAsync (int id);
+        Task<ResponseDetails<IEnumerable<GetTransactionDTO>>> GetTransactionByBookIdAsync(int  bookId);
+        Task<ResponseDetails<IEnumerable<GetTransactionDTO>>> GetOverdueTransactionAsync(int userId);
+        Task<ResponseDetails<IEnumerable<GetTransactionDTO>>> GetAllTransactionByStatusAsync(TransactionStatus status);
+        Task<ResponseDetails<GetTransactionDTO?>> GetTransactionByIdAsync (int id);
+        Task<ResponseDetails<GetTransactionDTO?>> CreateTransactionAsync (int bookId,int userId,CreateTransactionDTO transactionDetails);
     }
 }
