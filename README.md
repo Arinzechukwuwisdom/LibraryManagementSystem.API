@@ -1,6 +1,6 @@
 LibraryManagementAPI 
 
-A simple, maintainable library management API that manages books, users, and transactions (borrowing and returning books).built with N-Layered Architecture in ASP.NET Core — prioritizing separation of concerns, testability, and real-world workflows.
+A simple, maintainable library management API that manages books, users, and transactions (borrowing and returning books).built with Layered Architecture in ASP.NET Core — prioritizing separation of concerns, testability, and real-world workflows.
 Features 
 
      User & Book Management (CRUD)  
