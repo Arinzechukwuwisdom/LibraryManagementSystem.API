@@ -1,8 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.IdentityModel.Tokens;
 using SureLbraryAPI.DTOs;
-using SureLbraryAPI.Models;
-using SureLbraryAPI.Options;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -21,13 +18,13 @@ namespace SureLbraryAPI.Service
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
             var TokenDescriptor = new JwtSecurityToken(
 
-                issuer:configuration.GetValue<string>("JwtSettings:Issuer"),
-                claims:claims,
-                expires:DateTime.UtcNow.AddHours(1),
-                signingCredentials:creds,
-                audience:configuration.GetValue<string>("JwtSettings:Audience")
+                issuer: configuration.GetValue<string>("JwtSettings:Issuer"),
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(1),
+                signingCredentials: creds,
+                audience: configuration.GetValue<string>("JwtSettings:Audience")
             );
-        return new JwtSecurityTokenHandler().WriteToken(TokenDescriptor);
+            return new JwtSecurityTokenHandler().WriteToken(TokenDescriptor);
         }
     }
 }

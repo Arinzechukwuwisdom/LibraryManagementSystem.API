@@ -1,12 +1,8 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.SqlServer.Management.Smo;
 using SureLbraryAPI.Context;
 using SureLbraryAPI.DTOs;
 using SureLbraryAPI.Interfaces;
-using SureLbraryAPI.Models;
 using SureLbraryAPI.Utilities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -16,9 +12,9 @@ using User = SureLbraryAPI.Models.User;
 
 namespace SureLbraryAPI.Repository
 {
-    public class AuthRepository(LibraryContext _context, IConfiguration configuration) : IAuthService
+    public class AuthRepository(LibraryContext _context, IConfiguration configuration) : IAuthRepository
     {
-        public async Task<ResponseDetails<ResponseLoginDTO>> LoginUserAsync(LoginUserDTO loginDetails)        
+        public async Task<ResponseDetails<ResponseLoginDTO>> LoginUserAsync(LoginUserDTO loginDetails)
         {
             try
             {
@@ -27,10 +23,10 @@ namespace SureLbraryAPI.Repository
                 {
                     return ResponseDetails<ResponseLoginDTO>.Failed("Credentials are Invalid", "InCorrect Details", 400);
                 }
-                var passwordIsCorrect = BCrypt.Net.BCrypt.Verify(loginDetails.Password,user.Password);
-                if (!passwordIsCorrect) 
+                var passwordIsCorrect = BCrypt.Net.BCrypt.Verify(loginDetails.Password, user.Password);
+                if (!passwordIsCorrect)
                 {
-                    return ResponseDetails<ResponseLoginDTO>.Failed("Credentails are Invalid", "Incorrect Details",400);
+                    return ResponseDetails<ResponseLoginDTO>.Failed("Credentails are Invalid", "Incorrect Details", 400);
                 }
                 string token = CreateToken(user);
 
@@ -38,9 +34,9 @@ namespace SureLbraryAPI.Repository
                 {
                     //Id =user.Id,
                     AccessToken = CreateToken(user),
-                    RefreshToken =await GenerateAndSaveRefreshTokenAsync(user)
+                    RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
                 };
-               
+
                 {
                     return ResponseDetails<ResponseLoginDTO>.Success(response, "Login was Successful", 200);
                 }
@@ -59,14 +55,14 @@ namespace SureLbraryAPI.Repository
                 var userAlreadyExists = await _context.Users.AnyAsync(u => u.Email == request.Email);
                 if (userAlreadyExists)
                 {
-                    return ResponseDetails<GetUserDTO>.Failed("Registeration Unsuccessful","$User with Email{Email} already Exist",400);
+                    return ResponseDetails<GetUserDTO>.Failed("Registeration Unsuccessful", "$User with Email{Email} already Exist", 400);
                 }
                 var user = new User
                 {
                     Name = request.Name,
                     Email = request.Email,
                     Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                    Role=request.Role,
+                    Role = request.Role,
                     //Password = new PasswordHasher<User>()
                     //.HashPassword(user, request.Password)
                 };
@@ -75,28 +71,28 @@ namespace SureLbraryAPI.Repository
                 var userDTO = new GetUserDTO
                 {
                     Email = user.Email,
-                    Name=user.Name,
+                    Name = user.Name,
                     MembershipCode = user.MembershipCode,
                 };
-                return ResponseDetails<GetUserDTO>.Success(userDTO,"Registeration Successful",200);
- 
+                return ResponseDetails<GetUserDTO>.Success(userDTO, "Registeration Successful", 200);
+
             }
-            catch(Exception ex)  
+            catch (Exception ex)
             {
-                return ResponseDetails<GetUserDTO>.Failed("An Exception was caught",ex.Message,ex.HResult);
+                return ResponseDetails<GetUserDTO>.Failed("An Exception was caught", ex.Message, ex.HResult);
             }
         }
         private string GenerateRefreshToken()
         {
-            var randomNumber=new byte[32];
-            using var rng= RandomNumberGenerator.Create();
+            var randomNumber = new byte[32];
+            using var rng = RandomNumberGenerator.Create();
             rng.GetBytes(randomNumber);
             return Convert.ToBase64String(randomNumber);
         }
 
         private async Task<string> GenerateAndSaveRefreshTokenAsync(User user)
         {
-            var refreshToken=GenerateRefreshToken();
+            var refreshToken = GenerateRefreshToken();
             user.RefreshToken = refreshToken;
             user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
             await _context.SaveChangesAsync();
@@ -117,7 +113,7 @@ namespace SureLbraryAPI.Repository
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
 
             var tokenDescriptor = new JwtSecurityToken(
-                issuer: configuration["AppSettings:Issuer"], 
+                issuer: configuration["AppSettings:Issuer"],
                 audience: configuration["AppSettings:Audience"],
                 claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(configuration["AppSettings:ExpirationTime"])),
@@ -126,5 +122,5 @@ namespace SureLbraryAPI.Repository
                 );
             return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
         }
-    }           
+    }
 }

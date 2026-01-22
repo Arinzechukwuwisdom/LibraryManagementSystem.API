@@ -1,14 +1,11 @@
-﻿using Azure.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SureLbraryAPI.Context;
 using SureLbraryAPI.DTOs;
 using SureLbraryAPI.Enums;
 using SureLbraryAPI.Interfaces;
-using SureLbraryAPI.Migrations;
 using SureLbraryAPI.Models;
 using SureLbraryAPI.Utilities;
 using System.Data;
-using System.Linq;
 
 namespace SureLbraryAPI.Repository
 {
@@ -21,52 +18,59 @@ namespace SureLbraryAPI.Repository
         }
         public async Task<ResponseDetails<GetTransactionDTO?>> CreateTransactionAsync(int bookId, int userId, CreateTransactionDTO transactionDetails)
         {
-                var user = await _libraryContext.Users.FindAsync(userId);
-                if (user==null)
-                {
-                    return ResponseDetails<GetTransactionDTO?>.Failed("Invalid User", "User Not Found", 400);
-                }
-                var book = await _libraryContext.Books.FindAsync(bookId);
-                if (book is null)
-                {
-                    return ResponseDetails<GetTransactionDTO?>.Failed("Invalid Book", "Book Not Found", 400);
-                }
-                
-                var transaction = new Transaction
-                {
-                    BorrowDate= transactionDetails.BorrowDate,
-                    UserId=userId,
-                    BookId=bookId,
-                    ReturnDate=transactionDetails.ReturnDate,
-                    ExpectedReturnDate=transactionDetails.ExpectedReturnDate,
-                    ActualReturnDate=transactionDetails.ActualReturnDate
-                };
-                
-                await _libraryContext.Transactions.AddAsync(transaction);
-                await _libraryContext.SaveChangesAsync();
+            var user = await _libraryContext.Users.FindAsync(userId);
+            if (user == null)
+            {
+                return ResponseDetails<GetTransactionDTO?>.Failed("Invalid User", "User Not Found", 400);
+            }
+            var book = await _libraryContext.Books.FindAsync(bookId);
+            if (book is null)
+            {
+                return ResponseDetails<GetTransactionDTO?>.Failed("Invalid Book", "Book Not Found", 400);
+            }
 
-                var transactionDt0 = new GetTransactionDTO
-                {
-                    Id=transaction.Id,
-                    UserName = user.Name,
-                    Status = transaction.Status,
-                    ExpectedReturnDate = transaction.ExpectedReturnDate,
-                    BorrowDate = transaction.BorrowDate,
-                    BookTitle=book.Title,
-                };
-               return ResponseDetails<GetTransactionDTO?>.Success(transactionDt0);
+            var transaction = new Transaction
+            {
+                BorrowDate = transactionDetails.BorrowDate,
+                UserId = userId,
+                BookId = bookId,
+                ReturnDate = transactionDetails.ReturnDate,
+                ExpectedReturnDate = transactionDetails.ExpectedReturnDate,
+                ActualReturnDate = transactionDetails.ActualReturnDate
+            };
+
+            await _libraryContext.Transactions.AddAsync(transaction);
+            await _libraryContext.SaveChangesAsync();
+
+            var transactionDt0 = new GetTransactionDTO
+            {
+                Id = transaction.Id,
+                UserName = user.Name,
+                Status = transaction.Status,
+                ExpectedReturnDate = transaction.ExpectedReturnDate,
+                BorrowDate = transaction.BorrowDate,
+                BookTitle = book.Title,
+            };
+            return ResponseDetails<GetTransactionDTO?>.Success(transactionDt0);
         }
 
         public async Task<ResponseDetails<bool>> DeleteTransactionAsync(int id)
         {
-            var transaction = await _libraryContext.Transactions.FindAsync(id);
-            if (transaction is null)
+            try
             {
-                return ResponseDetails<bool>.Failed("Not Found","Trnsaction does not Exist",404);
+                var transaction = await _libraryContext.Transactions.FindAsync(id);
+                if (transaction is null)
+                {
+                    return ResponseDetails<bool>.Failed("Not Found", "Transaction does not Exist", 404);
+                }
+                _libraryContext.Remove(id);
+                await _libraryContext.SaveChangesAsync();
+                return ResponseDetails<bool>.Success(true);
             }
-            _libraryContext.Remove(id);
-            await _libraryContext.SaveChangesAsync();
-            return ResponseDetails<bool>.Success(true);
+            catch (Exception ex)
+            {
+                return ResponseDetails<bool>.Failed("Exception was caught", ex.Message, ex.HResult);
+            }
         }
 
         public async Task<ResponseDetails<List<GetTransactionDTO>>> GetAllTransactionsAsync()
@@ -79,18 +83,18 @@ namespace SureLbraryAPI.Repository
                     {
                         Id = u.Id,
                         UserName = u.User.Name,
-                        BookTitle=u.Book.Title,
+                        BookTitle = u.Book.Title,
                         DaysOverdue = (int)(now - u.ExpectedReturnDate.Value).TotalDays,
                         Status = u.Status,
                         ExpectedReturnDate = u.ExpectedReturnDate,
                         BorrowDate = u.BorrowDate,
                     }).ToListAsync();
-                if (transactions.Count==0)
+                if (transactions.Count == 0)
                 {
                     return ResponseDetails<List<GetTransactionDTO>>.Failed();
                     //This is supposed to be empty list not empty
                 }
-                return ResponseDetails<List<GetTransactionDTO>>.Success(tr);
+                return ResponseDetails<List<GetTransactionDTO>>.Success(transactions);
                 // return transactions;
             }
             catch (Exception ex)
@@ -123,15 +127,14 @@ namespace SureLbraryAPI.Repository
                     })
                     .ToListAsync();
 
-                return ResponseDetails<IEnumerable<GetTransactionDTO>>.Success(overdueTransactions,"Transaction was successful", 200);
+                return ResponseDetails<IEnumerable<GetTransactionDTO>>.Success(overdueTransactions, "Transaction was successful", 200);
             }
+            
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                return ResponseDetails<IEnumerable<GetTransactionDTO>>.Failed("Exception was caught", ex.Message, ex.HResult);
             }
-
         }
-
 
         public async Task<ResponseDetails<IEnumerable<GetTransactionDTO>>> GetTransactionByBookIdAsync(int bookId)
         {
@@ -155,36 +158,43 @@ namespace SureLbraryAPI.Repository
                     return ResponseDetails<IEnumerable<GetTransactionDTO>>.Failed();
                 }
 
-                    return ResponseDetails<IEnumerable<GetTransactionDTO>>.Success(transactions);
+                return ResponseDetails<IEnumerable<GetTransactionDTO>>.Success(transactions);
             }
             catch (Exception ex)
             {
-                return ResponseDetails<IEnumerable<GetTransactionDTO>>.Failed("An Exception was Caught","Transaction Successfully Created",201);
+                return ResponseDetails<IEnumerable<GetTransactionDTO>>.Failed("An Exception was Caught", ex.Message,ex.HResult);
             }
         }
 
         public async Task<ResponseDetails<GetTransactionDTO?>> GetTransactionByIdAsync(int id)
         {
-            var transaction = await _libraryContext.Transactions
-                .Include(t => t.User)
-                .Include(t => t.Book)
-                .FirstOrDefaultAsync(t => t.Id == id);
-
-            if (transaction == null)
+            try
             {
-                return null;
+                var transaction = await _libraryContext.Transactions
+                    .Include(t => t.User)
+                    .Include(t => t.Book)
+                    .FirstOrDefaultAsync(t => t.Id == id);
+
+                if (transaction == null)
+                {
+                    return null;
+                }
+
+                var transactionDTO = new GetTransactionDTO
+                {
+                    Id = transaction.Id,
+                    UserName = transaction.User.Name,
+                    BookTitle = transaction.Book.Title,
+                    Status = transaction.Status,
+                    BorrowDate = transaction.BorrowDate,
+                    ExpectedReturnDate = transaction.ExpectedReturnDate
+                };
+                return ResponseDetails<GetTransactionDTO?>.Success(transactionDTO);
             }
-
-            var transactionDTO= new GetTransactionDTO
+            catch (Exception ex) 
             {
-                Id = transaction.Id,
-                UserName = transaction.User.Name,
-                BookTitle = transaction.Book.Title,
-                Status = transaction.Status,
-                BorrowDate = transaction.BorrowDate,
-                ExpectedReturnDate = transaction.ExpectedReturnDate
-            };
-            return ResponseDetails<GetTransactionDTO?>.Success(transactionDTO);
+                return ResponseDetails<GetTransactionDTO?>.Failed("An Exception was Caught",ex.Message,ex.HResult);
+            }
         }
 
         public async Task<ResponseDetails<IEnumerable<GetTransactionDTO>>> GetAllTransactionByStatusAsync(TransactionStatus status)
@@ -202,7 +212,7 @@ namespace SureLbraryAPI.Repository
 
                             })
                             .ToListAsync();
-            if(transactions.Count==0)
+            if (transactions.Count == 0)
             {
                 return ResponseDetails<IEnumerable<GetTransactionDTO>>.Failed();
             }
@@ -211,39 +221,47 @@ namespace SureLbraryAPI.Repository
 
         public async Task<ResponseDetails<IEnumerable<GetTransactionDTO>>> GetTransactionByUserIdAsync(int id)
         {
-            var transactions=await _libraryContext.Transactions
-                .Where(u=>u.Id==id)
-                .Include(t=>t.User)
-                .Select(u=>new GetTransactionDTO
-                {
-                    UserName=u.User.Name,
-                    Status=u.Status,
-                    BorrowDate=u.BorrowDate,
-                    ExpectedReturnDate=u.ExpectedReturnDate
-                }).ToListAsync();
-            if (transactions == null)
+            try
             {
-                return ResponseDetails<IEnumerable<GetTransactionDTO>>.Failed();
-                //return null;
+                var transactions = await _libraryContext.Transactions
+                    .Where(u => u.Id == id)
+                    .Include(t => t.User)
+                    .Select(u => new GetTransactionDTO
+                    {
+                        UserName = u.User.Name,
+                        Status = u.Status,
+                        BorrowDate = u.BorrowDate,
+                        ExpectedReturnDate = u.ExpectedReturnDate
+                    }).ToListAsync();
+                if (transactions == null)
+                {
+                    return ResponseDetails<IEnumerable<GetTransactionDTO>>.Failed();
+                    //return null;
+                }
+                return ResponseDetails<IEnumerable<GetTransactionDTO>>.Success(transactions, "Transaction successful", 201);
             }
-            return ResponseDetails<IEnumerable<GetTransactionDTO>>.Success(transactions,"Transaction successful",201);
+
+            catch (Exception ex)
+            {
+                return ResponseDetails<IEnumerable<GetTransactionDTO>>.Failed("Exception was caught", ex.Message, ex.HResult);
+            }
         }
 
         public async Task<ResponseDetails<GetTransactionDTO>> UpdateTransactionAsync(CreateTransactionDTO transactionDetails, int id)
         {
             var transaction = await _libraryContext.Transactions
                 .FindAsync(id);
-            if (transaction == null) 
+            if (transaction == null)
             {
                 return ResponseDetails<GetTransactionDTO>.Failed();
             }
-           
+
             var transactionDTO = new CreateTransactionDTO
             {
-                Status=transactionDetails.Status,
-                ReturnDate=transactionDetails.ReturnDate,
+                Status = transactionDetails.Status,
+                ReturnDate = transactionDetails.ReturnDate,
                 ExpectedReturnDate = transactionDetails.ExpectedReturnDate,
-                ActualReturnDate=transactionDetails.ActualReturnDate,
+                ActualReturnDate = transactionDetails.ActualReturnDate,
                 BorrowDate = transactionDetails.BorrowDate,
             };
             transaction.Status = (transactionDetails.Status != null)
@@ -252,17 +270,17 @@ namespace SureLbraryAPI.Repository
 
             transaction.ReturnDate = (transactionDetails.ReturnDate != null)
             ? transactionDetails.ReturnDate
-            : transaction.ReturnDate; 
-            
-            transaction.ExpectedReturnDate=(transactionDetails.ExpectedReturnDate != null)
-                ?transactionDetails.ExpectedReturnDate
+            : transaction.ReturnDate;
+
+            transaction.ExpectedReturnDate = (transactionDetails.ExpectedReturnDate != null)
+                ? transactionDetails.ExpectedReturnDate
                 : transaction.ExpectedReturnDate;
-            
-            transaction.ActualReturnDate=(transactionDetails != null)
+
+            transaction.ActualReturnDate = (transactionDetails != null)
                 ? transactionDetails.ActualReturnDate
                 : transaction.ActualReturnDate;
 
-            transaction.BorrowDate=(transactionDetails!= null)
+            transaction.BorrowDate = (transactionDetails != null)
                 ? transactionDetails.BorrowDate
                 : transaction.BorrowDate;
 
@@ -278,8 +296,8 @@ namespace SureLbraryAPI.Repository
                 BorrowDate = transaction.BorrowDate,
                 //DaysOverdue = int(transaction.ExpectedReturnDate - transaction.ActualReturnDate)
             };
-            return ResponseDetails<GetTransactionDTO>.Success(dto,"Update was Successful",200);
-          
+            return ResponseDetails<GetTransactionDTO>.Success(dto, "Update was Successful", 200);
+
         }
     }
 }

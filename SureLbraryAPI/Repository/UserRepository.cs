@@ -1,61 +1,57 @@
-﻿using BCrypt.Net;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SureLbraryAPI.Context;
 using SureLbraryAPI.DTOs;
 using SureLbraryAPI.Interfaces;
 using SureLbraryAPI.Models;
 using SureLbraryAPI.Utilities;
-using System.ComponentModel.DataAnnotations;
 
 namespace SureLbraryAPI.Repository
 {
-    public class UserRepository : IUserService
-    {   
+    public class UserRepository : IUserRepository
+    {
         private readonly LibraryContext _context;
         public UserRepository(LibraryContext context)
         {
             _context = context;
         }
-        
+
         public async Task<ResponseDetails<GetUserDTO>> CreateUserAsync(CreateUserDTO userDetail)
         {
             try
             {
-                var userAlreadyExists=await _context.Users.AnyAsync(u=>u.Email==userDetail.Email);
+                var userAlreadyExists = await _context.Users.AnyAsync(u => u.Email == userDetail.Email);
                 if (userAlreadyExists)
                 {
                     return ResponseDetails<GetUserDTO>.Failed("Conflict", $"User with Email:{userDetail.Email} already Exists", 409);
                 }
-                var lastestMembershipNumber = await _context.Users.Select(u => u.MembershipNumber).MaxAsync(); 
+                var lastestMembershipNumber = await _context.Users.Select(u => u.MembershipNumber).MaxAsync();
                 var user = new User
                 {
                     Email = userDetail.Email,
                     Name = userDetail.Name,
                     Address = userDetail.Address,
-                    Password=BCrypt.Net.BCrypt.HashPassword(userDetail.Password),
+                    Password = BCrypt.Net.BCrypt.HashPassword(userDetail.Password),
                     MembershipNumber = lastestMembershipNumber + 1,
-                    Role=userDetail.Role
-                };  
+                    Role = userDetail.Role
+                };
                 await _context.Users.AddAsync(user);
                 await _context.SaveChangesAsync();
-                var userDTO = new GetUserDTO    
+                var userDTO = new GetUserDTO
                 {
                     Id = user.Id,
                     Name = user.Name,
                     Email = user.Email,
-                    MembershipCode=user.MembershipCode,
+                    MembershipCode = user.MembershipCode,
                     Address = user.Address,
                     CreatedAt = user.CreatedAt,
                     UpdatedAt = user.UpdatedAt,
                 };
-                    return ResponseDetails<GetUserDTO>.Success(userDTO, "User successfully Created", 201);
+                return ResponseDetails<GetUserDTO>.Success(userDTO, "User successfully Created", 201);
 
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
-               return ResponseDetails<GetUserDTO>.Failed("An Exception was Caught",ex.Message,ex.HResult);
+                return ResponseDetails<GetUserDTO>.Failed("An Exception was Caught", ex.Message, ex.HResult);
             }
         }
 
@@ -82,26 +78,26 @@ namespace SureLbraryAPI.Repository
         {
             try
             {
-                var users=await _context.Users.Select(x => new GetUserDTO
+                var users = await _context.Users.Select(x => new GetUserDTO
                 {
                     Id = x.Id,
                     Name = x.Name,
                     Email = x.Email,
                     MembershipCode = x.MembershipCode,
                     Address = x.Address,
-                    CreatedAt= x.CreatedAt,
-                    UpdatedAt= x.UpdatedAt,
+                    CreatedAt = x.CreatedAt,
+                    UpdatedAt = x.UpdatedAt,
                 }).ToListAsync();
-                if(users.Count == 0)
+                if (users.Count == 0)
                 {
-                    return ResponseDetails<List<GetUserDTO>>.Success([],"No User Found",204);
+                    return ResponseDetails<List<GetUserDTO>>.Success([], "No User Found", 204);
                 }
-                return ResponseDetails<List<GetUserDTO>>.Success(users," Users retrieved successfully",200);
-            
+                return ResponseDetails<List<GetUserDTO>>.Success(users, " Users retrieved successfully", 200);
+
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
-                return ResponseDetails<List<GetUserDTO>>.Failed("Caught Exception", ex.Message,ex.HResult);
+                return ResponseDetails<List<GetUserDTO>>.Failed("Caught Exception", ex.Message, ex.HResult);
             }
         }
 
@@ -109,8 +105,8 @@ namespace SureLbraryAPI.Repository
         {
             try
             {
-               var user= await _context.Users.FindAsync(id);
-                if(user is null)
+                var user = await _context.Users.FindAsync(id);
+                if (user is null)
                 {
                     return ResponseDetails<GetUserDTO>.Failed();
                 }
@@ -122,14 +118,64 @@ namespace SureLbraryAPI.Repository
                     MembershipCode = user.MembershipCode,
                     Address = user.Address,
                 };
-                return ResponseDetails<GetUserDTO>.Success(userDTO, "User Found Successfully",200);
+                return ResponseDetails<GetUserDTO>.Success(userDTO, "User Found Successfully", 200);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return ResponseDetails<GetUserDTO>.Failed("Caught Exception", ex.Message,ex.HResult);
+                return ResponseDetails<GetUserDTO>.Failed("Caught Exception", ex.Message, ex.HResult);
             }
         }
 
+        public async Task<ResponseDetails<GetUserDTO>> UpdateUsersAsync(CreateUserDTO userDetail, int id)
+        {
+            try
+            {
+                var user = await _context.Users.FindAsync(id);
+                if (user is null)
+                {
+                    return ResponseDetails<GetUserDTO>.Failed();
+                }
+                var userDTO = new CreateUserDTO
+                {
+                    Name=userDetail.Name,
+                    Email=userDetail.Email,
+                    Password=userDetail.Password,
+                    Address=userDetail.Address,
+                    Role=userDetail.Role,
+                };
 
+                user.Name=(userDetail.Name!=null)
+                    ? userDetail.Name : user.Name;
+
+                user.Address=(userDetail.Address!=null)
+                    ? userDetail.Address : user.Address;
+
+                user.Email=(userDetail.Email!=null)
+                    ? userDetail.Email : user.Email;
+
+                user.Role=(userDetail!=null)
+                    ? userDetail.Role : user.Role;
+
+                user.Password=(userDetail.Password!=null)
+                    ? userDetail.Password : user.Password;
+
+                _context.Update(userDTO);
+                await _context.SaveChangesAsync();
+
+                var dto = new GetUserDTO
+                { 
+                    Id = user.Id,
+                    Email=user.Email,
+                    Name=user.Name,
+                    Address=user.Address,
+                    MembershipCode=user.MembershipCode,
+                };
+                return ResponseDetails<GetUserDTO>.Success(dto);
+            }
+            catch (Exception ex) 
+            {
+                return ResponseDetails<GetUserDTO>.Failed("An Exception was Caught", ex.Message, ex.HResult);
+            }
+        }
     }
 }

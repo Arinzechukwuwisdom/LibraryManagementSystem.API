@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SureLbraryAPI.DTOs;
 using SureLbraryAPI.Interfaces;
@@ -8,9 +7,9 @@ namespace SureLbraryAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthsController(IAuthService authService) : ControllerBase
+    public class AuthsController(IAuthRepository authService) : ControllerBase
     {
-        private readonly IAuthService _authService = authService;
+        private readonly IAuthRepository _authService = authService;
 
         [HttpPost("Register")]
         public async Task<IActionResult> RegisterUserAync(CreateUserDTO request)
@@ -22,16 +21,16 @@ namespace SureLbraryAPI.Controllers
                 {
                     return Ok(req);
                 }
-                else 
+                else
                 {
                     return BadRequest(req);
                 }
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
-            
+
         }
         [HttpPost("login")]
         public async Task<ActionResult<ResponseLoginDTO>> LoginUserAsync([FromBody] LoginUserDTO request)
@@ -61,7 +60,7 @@ namespace SureLbraryAPI.Controllers
         {
             return Ok("You are Authenticated!");
         }
-        [Authorize(Roles="Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpGet("Admin-only")]
         public IActionResult AdminOnlyEndpoint()
         {

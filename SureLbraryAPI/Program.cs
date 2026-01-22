@@ -1,16 +1,9 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.SqlServer.Management.Smo;
 using SureLbraryAPI.Context;
 using SureLbraryAPI.Interfaces;
 using SureLbraryAPI.Repository;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Principal;
 using System.Text;
 //using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 //using JwtRegisteredClaimNames = System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames;
@@ -91,10 +84,10 @@ builder.Services.AddAuthentication(options =>
 //builder.Services.AddSwaggerGen(
 
 
-builder.Services.AddScoped<ITransactionService,TransactionRepository>();
-builder.Services.AddScoped<IBookService,BookRepository>();
-builder.Services.AddScoped<IUserService,UserRepository>();
-builder.Services.AddScoped<IAuthService,AuthRepository>();
+builder.Services.AddScoped<ITransactionService, TransactionRepository>();
+builder.Services.AddScoped<IBookService, BookRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

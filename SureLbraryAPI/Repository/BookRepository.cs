@@ -4,14 +4,13 @@ using SureLbraryAPI.DTOs;
 using SureLbraryAPI.Interfaces;
 using SureLbraryAPI.Models;
 using SureLbraryAPI.Utilities;
-using System.Reflection;
 
 namespace SureLbraryAPI.Repository
 {
-    public class BookRepository : IBookService
+    public class BookRepository : IBookRepository
     {
         private readonly LibraryContext _context;
-        public BookRepository(LibraryContext context) 
+        public BookRepository(LibraryContext context)
         {
             _context = context;
         }
@@ -24,7 +23,7 @@ namespace SureLbraryAPI.Repository
                 {
                     return ResponseDetails<GetBookDTO>.Failed("Validation Failed", "Book with the same Title and Author already Exist", 409);
                 }
-                
+
                 var book = new Book
                 {
                     Title = bookDetail.Title,
@@ -32,8 +31,8 @@ namespace SureLbraryAPI.Repository
                     CopiesAvailable = bookDetail.CopiesAvailable,
                     Genre = bookDetail.Genre,
                     PublishedDate = bookDetail.PublishedDate,
-                   //Quantity = bookDetail.Quantity,
-                    Price =bookDetail.Price
+                    //Quantity = bookDetail.Quantity,
+                    Price = bookDetail.Price
                 };
                 await _context.Books.AddAsync(book);
                 await _context.SaveChangesAsync();
@@ -49,20 +48,20 @@ namespace SureLbraryAPI.Repository
                     IsAvailable = true,
                     CopiesAvailable = book.CopiesAvailable,
                 };
-                return ResponseDetails<GetBookDTO>.Success(dto,"Book Added Successfully", 200);
-            }
+                return ResponseDetails<GetBookDTO>.Success(dto, "Book Added Successfully", 200);
+        }
             catch (Exception ex)
             {
                 return ResponseDetails<GetBookDTO>.Failed("Caught Exception", ex.Message, ex.HResult);
             }
-        }
+}
 
         public async Task<ResponseDetails<GetBookDTO>> DeleteBookAsync(int id)
         {
-            try
-            {
-                var book =await _context.Books.FindAsync(id);
-                if(book is null)
+                try
+                {
+                var book = await _context.Books.FindAsync(id);
+                if (book is null)
                 {
                     return ResponseDetails<GetBookDTO>.Failed();
                 }
@@ -75,11 +74,11 @@ namespace SureLbraryAPI.Repository
                     Author = book.Author,
                     PublishedDate = book.PublishedDate,
                 };
-                return ResponseDetails<GetBookDTO>.Success(bookDTO,"Book Deleted Successfully",200);
+                return ResponseDetails<GetBookDTO>.Success(bookDTO, "Book Deleted Successfully", 200);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
-                return ResponseDetails<GetBookDTO>.Failed("Exception was caught",ex.Message,ex.HResult);
+                return ResponseDetails<GetBookDTO>.Failed("Exception was caught", ex.Message, ex.HResult);
             }
         }
 
@@ -87,11 +86,12 @@ namespace SureLbraryAPI.Repository
         {
             try
             {
-                var books = await _context.Books.Select(u => new GetBookDTO
+                var books = await _context.Books
+                    .Select(u => new GetBookDTO
                 {
-                    Id=u.Id,
+                    Id = u.Id,
                     Title = u.Title,
-                    Author=u.Author,
+                    Author = u.Author,
                     PublishedDate = u.PublishedDate,
                     Price = u.Price,
                     Genre = u.Genre,
@@ -99,15 +99,15 @@ namespace SureLbraryAPI.Repository
                     IsAvailable = u.IsAvailable,
                     CopiesAvailable = u.CopiesAvailable,
                 }).ToListAsync();
-                if(books.Count==0)
+                if (books.Count == 0)
                 {
-                    return ResponseDetails<List<GetBookDTO>>.Success([],"No Book Found",200);
+                    return ResponseDetails<List<GetBookDTO>>.Success([], "No Book Found", 200);
                 }
-                return ResponseDetails<List<GetBookDTO>>.Success(books,"Users retrieved Successfully",200);
+                return ResponseDetails<List<GetBookDTO>>.Success(books, "Users retrieved Successfully", 200);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
-                return ResponseDetails<List<GetBookDTO>>.Failed("Exception was caught",ex.Message,ex.HResult);
+                return ResponseDetails<List<GetBookDTO>>.Failed("Exception was caught", ex.Message, ex.HResult);
             }
         }
 
@@ -115,9 +115,9 @@ namespace SureLbraryAPI.Repository
         {
             try
             {
-                var books=await  _context.Books
+                var books = await _context.Books
                     .Where(b => b.CopiesAvailable > 0)
-                    .Select(b=> new GetBookDTO
+                    .Select(b => new GetBookDTO
                     {
                         Id = b.Id,
                         Title = b.Title,
@@ -130,15 +130,15 @@ namespace SureLbraryAPI.Repository
                         CopiesAvailable = b.CopiesAvailable,
                     })
                     .ToListAsync();
-                if(books!=null)
+                if (books != null)
                 {
-                    return ResponseDetails <IEnumerable<GetBookDTO>>.Success(Enumerable.Empty<GetBookDTO>(),"No Book Found,204");
+                    return ResponseDetails<IEnumerable<GetBookDTO>>.Success(Enumerable.Empty<GetBookDTO>(), "No Book Found,204");
                 }
                 return ResponseDetails<IEnumerable<GetBookDTO>>.Success(books, "Books Retrieved Succesfully", 200);
-                }
-            catch (Exception ex) 
+            }
+            catch (Exception ex)
             {
-                return ResponseDetails<IEnumerable<GetBookDTO>>.Failed("Exception was caught", ex.Message,ex.HResult);       
+                return ResponseDetails<IEnumerable<GetBookDTO>>.Failed("Exception was caught", ex.Message, ex.HResult);
             }
         }
 
@@ -146,7 +146,7 @@ namespace SureLbraryAPI.Repository
         {
             try
             {
-              var book =await _context.Books.FindAsync(id);
+                var book = await _context.Books.FindAsync(id);
                 if (book == null)
                 {
                     ResponseDetails<GetBookDTO>.Failed("Exception was caught", $"Book with ID{id} not found", 400);
@@ -155,19 +155,48 @@ namespace SureLbraryAPI.Repository
                 {
                     Id = book.Id,
                     Title = book.Title,
-                    Author=book.Author,
-                    Price=book.Price,
+                    Author = book.Author,
+                    Price = book.Price,
                     PublishedDate = book.PublishedDate,
-                    Genre=book.Genre,
-                    Quantity=book.Quantity,
-                    CopiesAvailable=book.CopiesAvailable,
-                    IsAvailable=book.IsAvailable,
+                    Genre = book.Genre,
+                    Quantity = book.Quantity,
+                    CopiesAvailable = book.CopiesAvailable,
+                    IsAvailable = book.IsAvailable,
                 };
                 return ResponseDetails<GetBookDTO>.Success(bookDTO);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 return ResponseDetails<GetBookDTO>.Failed("Exception was Caught", ex.Message, ex.HResult);
+            }
+        }
+
+        public async Task<ResponseDetails<GetBookDTO>> GetBookByAuthorAsync(string author)
+        {
+            try
+            {
+                var book= await _context.Books.FindAsync(author);
+                if (book == null)
+                {
+                    ResponseDetails<GetBookDTO>.Failed();
+                }
+                var bookDTO = new GetBookDTO
+                {
+                    Id=book.Id,
+                    Title = book.Title,
+                    Author = book.Author,
+                    Price = book.Price,
+                    PublishedDate = book.PublishedDate,
+                    Genre = book.Genre,
+                    Quantity = book.Quantity,
+                    CopiesAvailable = book.CopiesAvailable,
+                    IsAvailable = book.IsAvailable,
+                };
+                return ResponseDetails<GetBookDTO>.Success(bookDTO) ;
+            }
+            catch (Exception ex) 
+            {
+                return ResponseDetails<GetBookDTO>.Failed("An Exception was Caught", ex.Message,ex.HResult);
             }
         }
 
@@ -179,28 +208,28 @@ namespace SureLbraryAPI.Repository
                      .Where(b => b.Title.Contains(filter) || b.Author.Contains(filter) || b.Genre.Contains(filter))
                      .Select(b => new GetBookDTO
                      {
-                         Id=b.Id,
-                         Title=b.Title,
-                         Author=b.Author,
-                         Price=b.Price,
-                         PublishedDate=b.PublishedDate,
-                         Genre=b.Genre,
-                         Quantity=b.Quantity,
-                         CopiesAvailable=b.CopiesAvailable,
-                         IsAvailable=b.IsAvailable,
+                         Id = b.Id,
+                         Title = b.Title,
+                         Author = b.Author,
+                         Price = b.Price,
+                         PublishedDate = b.PublishedDate,
+                         Genre = b.Genre,
+                         Quantity = b.Quantity,
+                         CopiesAvailable = b.CopiesAvailable,
+                         IsAvailable = b.IsAvailable,
                      }).ToListAsync();
                 if (!books.Any())
                 {
-                    return ResponseDetails<IEnumerable<GetBookDTO>>.Success(Enumerable.Empty<GetBookDTO>(),"No Book Found",204);
+                    return ResponseDetails<IEnumerable<GetBookDTO>>.Success(Enumerable.Empty<GetBookDTO>(), "No Book Found", 204);
                 }
                 {
-                    return ResponseDetails<IEnumerable<GetBookDTO>>.Success(books,"Books Retrieved Successfully",200);
+                    return ResponseDetails<IEnumerable<GetBookDTO>>.Success(books, "Books Retrieved Successfully", 200);
                 }
 
             }
             catch (Exception ex)
             {
-                return ResponseDetails<IEnumerable<GetBookDTO>>.Failed("Exception was Caught", ex.Message,ex.HResult);
+                return ResponseDetails<IEnumerable<GetBookDTO>>.Failed("Exception was Caught", ex.Message, ex.HResult);
             }
         }
 
@@ -208,31 +237,84 @@ namespace SureLbraryAPI.Repository
         {
             try
             {
-                var books= await _context.Books 
-                    .Where(b=>b.Title.ToLower().Contains(searchTerm)||b.Author.ToLower().Contains(searchTerm))
-                    .Select(b=>new GetBookDTO
+                var books = await _context.Books
+                    .Where(b => b.Title.ToLower().Contains(searchTerm) || b.Author.ToLower().Contains(searchTerm))
+                    .Select(b => new GetBookDTO
                     {
-                        Title=b.Title,
-                        Author=b.Author,
-                        Price=b.Price,
-                        PublishedDate=b.PublishedDate,
-                        Genre=b.Genre,
-                        Quantity=b.Quantity,
-                        CopiesAvailable=b.CopiesAvailable,
-                        IsAvailable=b.IsAvailable,
+                        Title = b.Title,
+                        Author = b.Author,
+                        Price = b.Price,
+                        PublishedDate = b.PublishedDate,
+                        Genre = b.Genre,
+                        Quantity = b.Quantity,
+                        CopiesAvailable = b.CopiesAvailable,
+                        IsAvailable = b.IsAvailable,
                     })
                     .ToListAsync();
                 if (!books.Any())
                 {
-                    return ResponseDetails<IEnumerable<GetBookDTO>>.Success(Enumerable.Empty<GetBookDTO>(),"No Book Found",204);
+                    return ResponseDetails<IEnumerable<GetBookDTO>>.Success(Enumerable.Empty<GetBookDTO>(), "No Book Found", 204);
                 }
-                 return ResponseDetails<IEnumerable<GetBookDTO>>.Success(books, "Book Retrieved Successfully", 200);
+                return ResponseDetails<IEnumerable<GetBookDTO>>.Success(books, "Book Retrieved Successfully", 200);
 
             }
             catch (Exception ex)
             {
-                return ResponseDetails<IEnumerable<GetBookDTO>>.Failed("Exception was Caught", ex.Message,ex.HResult);
+                return ResponseDetails<IEnumerable<GetBookDTO>>.Failed("Exception was Caught", ex.Message, ex.HResult);
             }
+        }
+
+        public async Task<ResponseDetails<GetBookDTO>> UpdateBookAsync(int id, CreateBookDTO bookDetails)
+        {
+            var book = await _context.Books
+                .FindAsync(id);
+            if (book == null) 
+            {
+                return ResponseDetails<GetBookDTO>.Failed();
+            }
+            var bookDTO = new CreateBookDTO
+            {
+                Title=bookDetails.Title,
+                CopiesAvailable=bookDetails.CopiesAvailable,
+                Author = bookDetails.Author,
+                Genre = bookDetails.Genre,
+                Price = bookDetails.Price,
+                PublishedDate = bookDetails.PublishedDate,
+            };
+
+            book.Author = (bookDetails.Author != null)
+            ? bookDetails.Author
+            : book.Author;
+
+            book.CopiesAvailable = (bookDetails.CopiesAvailable != null)
+            ? bookDetails.CopiesAvailable
+            : book.CopiesAvailable;
+
+            book.Genre = (bookDetails.Genre != null)
+                ? bookDetails.Genre
+                : book.Genre;
+
+            book.Price = (bookDetails != null)
+                ? bookDetails.Price
+                : book.Price;
+
+             book.Title= (bookDetails != null)
+                ? bookDetails.Title
+                : book.Title;
+
+            _context.Update<CreateBookDTO>(bookDetails);
+            await _context.SaveChangesAsync();
+            var dto = new GetBookDTO
+            {
+                Id = book.Id,
+                Title = book.Title,
+                Price= book.Price,
+                PublishedDate = book.PublishedDate,
+                Genre= book.Genre,
+                CopiesAvailable= book.CopiesAvailable,
+                Author = bookDetails.Author,
+            };
+            return ResponseDetails<GetBookDTO>.Success(dto, "Update was Successful", 200);
         }
     }
 }

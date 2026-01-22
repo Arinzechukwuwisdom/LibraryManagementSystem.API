@@ -10,6 +10,6 @@ namespace SureLbraryAPI.DTOs
         public DateTime? ExpectedReturnDate { get; set; }
         public string? BookTitle { get; set; }
         public DateTime BorrowDate { get; set; }
-        public int? DaysOverdue{ get; set; }
+        public int? DaysOverdue { get; set; }
     }
 }
