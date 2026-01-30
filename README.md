@@ -8,17 +8,19 @@ A simple, maintainable library management API that manages books, users, and tra
      Transaction Lifecycle: Borrowing, returning, due date tracking  
      Validation: Ensures users/books exist before transactions  
      Secure Authentication: JWT-based login (with BCrypt hashing)  
-     Resilient Design: Proper exception handling, logging, and async/await  
+     Resilient Design: Proper exception handling,and async/await  
      
 
-  Tech Stack 
-Framework
+ **Tech Stack**
+
+**Framework**
 	
 ASP.NET Core 8 (Minimal APIs)
 Architecture
 	
-N-Layered Architecture
-Data
+Layered Architecture
+
+**Data**
 	
 Entity Framework Core, SQL Server (SSMS)
 Auth
