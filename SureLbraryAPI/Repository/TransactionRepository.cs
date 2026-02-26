@@ -9,7 +9,7 @@ using System.Data;
 
 namespace SureLbraryAPI.Repository
 {
-    public class TransactionRepository : ITransactionService
+    public class TransactionRepository : ITransactionRepository
     {
         private readonly LibraryContext _libraryContext;
         public TransactionRepository(LibraryContext libraryContext)

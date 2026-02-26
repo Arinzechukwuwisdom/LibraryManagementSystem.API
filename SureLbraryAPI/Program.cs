@@ -84,8 +84,8 @@ builder.Services.AddAuthentication(options =>
 //builder.Services.AddSwaggerGen(
 
 
-builder.Services.AddScoped<ITransactionService, TransactionRepository>();
-builder.Services.AddScoped<IBookService, BookRepository>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<IBookRepository, BookRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 var app = builder.Build();
