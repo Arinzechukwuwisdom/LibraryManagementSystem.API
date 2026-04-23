@@ -55,11 +55,11 @@ namespace SureLbraryAPI.Repository
                 var userAlreadyExists = await _context.Users.AnyAsync(u => u.Email == request.Email);
                 if (userAlreadyExists)
                 {
-                    return ResponseDetails<GetUserDTO>.Failed("Registeration Unsuccessful", "$User with Email{Email} already Exist", 400);
+                    return ResponseDetails<GetUserDTO>.Failed("Registration Unsuccessful", "$User with Email{Email} already Exist", 400);
                 }
                 var user = new User
                 {
-                    Name = request.Name,
+                    Name = request.Name,    
                     Email = request.Email,
                     Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
                     Role = request.Role,
@@ -74,7 +74,7 @@ namespace SureLbraryAPI.Repository
                     Name = user.Name,
                     MembershipCode = user.MembershipCode,
                 };
-                return ResponseDetails<GetUserDTO>.Success(userDTO, "Registeration Successful", 200);
+                return ResponseDetails<GetUserDTO>.Success(userDTO, "Registration Successful", 200);
 
             }
             catch (Exception ex)

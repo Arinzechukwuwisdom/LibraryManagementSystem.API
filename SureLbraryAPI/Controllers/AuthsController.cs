@@ -12,7 +12,7 @@ namespace SureLbraryAPI.Controllers
         private readonly IAuthRepository _authService = authService;
 
         [HttpPost("Register")]
-        public async Task<IActionResult> RegisterUserAync(CreateUserDTO request)
+        public async Task<IActionResult> RegisterUserAsync(CreateUserDTO request)
         {
             try
             {

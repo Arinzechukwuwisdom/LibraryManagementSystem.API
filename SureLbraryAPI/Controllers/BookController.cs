@@ -9,17 +9,17 @@ namespace SureLbraryAPI.Controllers
     [ApiController]
     public class BookController : ControllerBase
     {
-        private readonly IBookService _bookService;
-        public BookController(IBookService bookService)
+        private readonly IBookRepository _bookRepository;
+        public BookController(IBookRepository bookRepository)
         {
-            _bookService = bookService;
+            _bookRepository = bookRepository;
         }
         [HttpPost]
         public async Task<IActionResult> AddBookAsync(CreateBookDTO bookDetail)
         {
             try
             {
-                var req = await _bookService.AddBookAsync(bookDetail);
+                var req = await _bookRepository.AddBookAsync(bookDetail);
             if (req.IsSuccess)
             {
                 return Ok(req);
@@ -36,11 +36,11 @@ namespace SureLbraryAPI.Controllers
         }
 
         [HttpGet("by-author")]
-        public async Task<IActionResult> GetBookByNameAsynnc(string authorName)
+        public async Task<IActionResult> GetBookByAuthorAsync(string author)
         {
             try
             {
-                var request = await _bookService.GetBookByNameAsync(authorName);
+                var request = await _bookRepository.GetBookByAuthorAsync(author);
                 if (request.IsSuccess)
                     return Ok(request);
                 return BadRequest(request);
@@ -56,7 +56,7 @@ namespace SureLbraryAPI.Controllers
         {
             try
             {
-                var request = await _bookService.GetAllBooksAsync();
+                var request = await _bookRepository.GetAllBooksAsync();
                 if(request.IsSuccess)
                     return Ok(request);
                 return BadRequest(request);
@@ -72,7 +72,7 @@ namespace SureLbraryAPI.Controllers
         {
             try
             {
-                var request = await _bookService.GetBookByIdAsync(id);
+                var request = await _bookRepository.GetBookByIdAsync(id);
                 if (request.IsSuccess)
                     return Ok(request);
                 return BadRequest(request);
@@ -88,7 +88,7 @@ namespace SureLbraryAPI.Controllers
         {
             try
             {
-                var request= await _bookService.UpdateBookAsync(id, bookDetail);
+                var request= await _bookRepository.UpdateBookAsync(id, bookDetail);
                 if(request.IsSuccess)
                     return Ok(request);
                 return BadRequest(request);
@@ -104,7 +104,7 @@ namespace SureLbraryAPI.Controllers
         {
             try
             {
-                var request= await _bookService.DeleteBookAsync(id);
+                var request= await _bookRepository.DeleteBookAsync(id);
                 if(request.IsSuccess)
                     return Ok(request);
                 return BadRequest(request);
@@ -120,7 +120,7 @@ namespace SureLbraryAPI.Controllers
         {
             try
             {
-                var request= await _bookService.SearchBooksAsync(searchTerm);
+                var request= await _bookRepository.SearchBooksAsync(searchTerm);
                 if(request.IsSuccess)
                     return Ok(request);
                 return BadRequest(request);
@@ -136,7 +136,7 @@ namespace SureLbraryAPI.Controllers
         {
             try
             {
-                var request = await _bookService.GetAllBooksAsync();
+                var request = await _bookRepository.GetAllBooksAsync();
                 if(request.IsSuccess)
                     return Ok(request);
                 return BadRequest(request);
@@ -152,7 +152,7 @@ namespace SureLbraryAPI.Controllers
         {
             try
             {
-                var request= await _bookService.GetBookBySpecificFilterAsync(filter);
+                var request= await _bookRepository.GetBookBySpecificFilterAsync(filter);
                 if(request.IsSuccess)
                     return Ok(request);
                 return BadRequest(request);

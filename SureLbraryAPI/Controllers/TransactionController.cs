@@ -9,10 +9,10 @@ namespace LbraryManagementAPI.Controllers
     [ApiController]
     public class TransactionController : ControllerBase
     {
-        private readonly ITransactionService _transactionService;
-        public TransactionController(ITransactionService transactionService)
+        private readonly ITransactionRepository _transactionRepository;
+        public TransactionController(ITransactionRepository transactionRepository)
         {
-            _transactionService = transactionService;
+            _transactionRepository = transactionRepository;
         }
 
         [HttpPost]
@@ -21,7 +21,7 @@ namespace LbraryManagementAPI.Controllers
         int userId,
         [FromBody] CreateTransactionDTO transactionDetails)
         {
-            var req = await _transactionService.CreateTransactionAsync(bookId, userId, transactionDetails);
+            var req = await _transactionRepository.CreateTransactionAsync(bookId, userId, transactionDetails);
             if (req.IsSuccess)
             {
                 return Ok(req);
@@ -36,7 +36,7 @@ namespace LbraryManagementAPI.Controllers
         [HttpGet("all")]
         public async Task<IActionResult> GetAllTransactionsAsync()
         {
-            var req = await _transactionService.GetAllTransactionsAsync();
+            var req = await _transactionRepository.GetAllTransactionsAsync();
             if (req.IsSuccess)
             {
                 return Ok(req);
@@ -47,7 +47,7 @@ namespace LbraryManagementAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetTransactionByIdAsync(int id)
         {
-            var transaction = await _transactionService.GetTransactionByIdAsync(id);
+            var transaction = await _transactionRepository.GetTransactionByIdAsync(id);
             if (transaction.IsSuccess)
             {
                 // return BadRequest();
@@ -59,7 +59,7 @@ namespace LbraryManagementAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTransactionAsync(int id)
         {
-            var transaction = await _transactionService.DeleteTransactionAsync(id);
+            var transaction = await _transactionRepository.DeleteTransactionAsync(id);
             if (transaction.IsSuccess)
             {
                 return Ok(transaction);
@@ -70,7 +70,7 @@ namespace LbraryManagementAPI.Controllers
         [HttpPatch]
         public async Task<IActionResult> UpdateTransactionAsync(CreateTransactionDTO transactionDetails, int id)
         {
-            var transaction = await _transactionService.UpdateTransactionAsync(transactionDetails, id);
+            var transaction = await _transactionRepository.UpdateTransactionAsync(transactionDetails, id);
             if (transaction.IsSuccess) 
             {
                 return Ok(transaction);
@@ -81,7 +81,7 @@ namespace LbraryManagementAPI.Controllers
         [HttpGet("userId/{userId}")]
         public async Task<IActionResult> GetTransactionByUserIdAsync(int userId)
         {
-            var transaction = await _transactionService.GetTransactionByUserIdAsync(userId);
+            var transaction = await _transactionRepository.GetTransactionByUserIdAsync(userId);
             if (transaction.IsSuccess)
             {
                 return Ok(transaction);
@@ -92,7 +92,7 @@ namespace LbraryManagementAPI.Controllers
         [HttpGet("book/{bookId}")]
         public async Task<IActionResult> GetTransactionByBookIdAsync(int bookId)
         {
-            var transaction = await _transactionService.GetTransactionByBookIdAsync(bookId);
+            var transaction = await _transactionRepository.GetTransactionByBookIdAsync(bookId);
             if (transaction.IsSuccess)
             {
                 return Ok(transaction);
@@ -103,7 +103,7 @@ namespace LbraryManagementAPI.Controllers
         [HttpGet("overdue")]
         public async Task<IActionResult> GetOverdueTransactionAsync(int userId)
         {
-            var transaction = await _transactionService.GetOverdueTransactionAsync(userId);
+            var transaction = await _transactionRepository.GetOverdueTransactionAsync(userId);
             if (transaction.IsSuccess)
             {
                 return Ok(transaction);
@@ -114,7 +114,7 @@ namespace LbraryManagementAPI.Controllers
         [HttpGet("status")]
         public async Task<IActionResult> GetAllTransactionByStatusAsync(TransactionStatus status)
         {
-            var transaction = await _transactionService.GetAllTransactionByStatusAsync(status);
+            var transaction = await _transactionRepository.GetAllTransactionByStatusAsync(status);
             if (transaction.IsSuccess)
             {
                 return Ok(transaction);
