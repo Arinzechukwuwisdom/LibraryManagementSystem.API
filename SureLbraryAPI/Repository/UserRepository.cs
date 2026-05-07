@@ -135,14 +135,14 @@ namespace SureLbraryAPI.Repository
                 {
                     return ResponseDetails<GetUserDTO>.Failed();
                 }
-                var userDTO = new CreateUserDTO
-                {
-                    Name=userDetail.Name,
-                    Email=userDetail.Email,
-                    Password=userDetail.Password,
-                    Address=userDetail.Address,
-                    Role=userDetail.Role,
-                };
+                //var userDTO = new CreateUserDTO
+                //{
+                //    Name=userDetail.Name,
+                //    Email=userDetail.Email,
+                //    Password=userDetail.Password,
+                //    Address=userDetail.Address,
+                //    Role=userDetail.Role,
+                //};
 
                 user.Name=(userDetail.Name!=null)
                     ? userDetail.Name : user.Name;
@@ -159,7 +159,7 @@ namespace SureLbraryAPI.Repository
                 user.Password=(userDetail.Password!=null)
                     ? userDetail.Password : user.Password;
 
-                _context.Update(userDTO);
+                _context.Update(user);
                 await _context.SaveChangesAsync();
 
                 var dto = new GetUserDTO
