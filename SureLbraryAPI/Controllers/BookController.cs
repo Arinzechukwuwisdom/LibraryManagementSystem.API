@@ -14,20 +14,21 @@ namespace SureLbraryAPI.Controllers
         {
             _bookRepository = bookRepository;
         }
+
         [HttpPost]
         public async Task<IActionResult> AddBookAsync(CreateBookDTO bookDetail)
         {
             try
             {
                 var req = await _bookRepository.AddBookAsync(bookDetail);
-            if (req.IsSuccess)
-            {
-                return Ok(req);
-            }
-            else
-            {
-                return BadRequest(req);
-            }
+                if (req.IsSuccess)
+                {
+                    return Ok(req);
+                }
+                else
+                {
+                    return BadRequest(req);
+                }
             }
             catch (Exception ex)
             {
